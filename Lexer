@@ -1,0 +1,185 @@
+import java.util.*;
+import java.io.*;
+
+/* semantic value of token returned by scanner */
+
+public class Lexer
+{
+	public static void main (String[] args) throws IOException
+	{
+		BufferedReader reader = new BufferedReader(new FileReader("input1.hs"));
+		BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
+		Yylex yy = new Yylex (reader);
+		while(true)
+		{
+			String x =yy.next_token();
+			if(x==null)
+				break;
+			writer.write(x);	
+			writer.write('\n');
+		}
+		reader.close();
+		writer.close();
+	}
+}
+
+%%
+%function next_token
+%type String
+
+%eofval{
+  return null;
+%eofval}
+
+%{
+  public String sourceFilename;
+  private int comment_count = 0;
+%}
+%state COMMENT
+%state NTS
+
+
+KEYWORD=data|type|deriving|if|then|else|otherwise|where|True|False
+DATATYPE=String|Bool|Integer|Int|Char
+FUNCTOR=Eq|Ord|Enum|Ix|Bounded|Read|Show
+
+ALPHA=[A-Za-z]
+DIGIT=[0-9]
+ALPHA_NUMERIC={ALPHA}|{DIGIT}
+IDENTIFIER={ALPHA}({ALPHA_NUMERIC})*
+NUMBER=(([-])?{DIGIT})
+CHARACTER=[\'][^\',\n][\']
+STRING=[\"][^\",\n]+[\"]
+COMMENT_TEXT=[^(?!-}$).*]
+
+COMMA=","
+BREAK="|"
+MATCHER="_"
+COLON=":"
+
+LEFTBRACKET="("
+RIGHTBRACKET=")"
+LEFTSQUAREBRACKET="["
+RIGHTSQUAREBRACKET="]"
+LEFTCOLON="{"
+RIGHTCOLON="}"
+
+DOUBLECOLON="::"
+ARROW="->"
+EMPTYLIST="[]"
+GRATERTHAN=">"
+LESSTHAN="<"
+
+ISEQUAL="=="
+GREATEREQUAL=">="
+LESSEQUAL="<="
+CONCATENATE="++"
+
+WHITE_SPACE=([\ \n\r\t\f\b])+
+%%
+
+
+<YYINITIAL> "--" {
+  yybegin(COMMENT);
+}
+<COMMENT> [^\n] {
+}
+<COMMENT> [\n] {
+  yybegin(YYINITIAL);
+}
+
+
+
+<YYINITIAL> {IDENTIFIER} { 
+  return "ID\t"+ yytext();
+}
+<YYINITIAL> {CHARACTER} { 
+  return "CH\t"+ yytext();
+}
+<YYINITIAL> {STRING} { 
+  return "ST\t"+ yytext();
+}
+
+
+<YYINITIAL> {KEYWORD} { 
+  return "KW\t"+ yytext();
+}
+<YYINITIAL> {DATATYPE} { 
+  return "DT\t"+ yytext();
+}
+<YYINITIAL> {FUNCTOR} { 
+  return "FR\t"+ yytext();
+}
+
+<YYINITIAL> {COMMA} { 
+  return "FA\t"+ yytext();
+}
+<YYINITIAL> {BREAK} { 
+  return "BR\t"+ yytext();
+}
+<YYINITIAL> {DOUBLECOLON} { 
+  return "HT\t"+ yytext();
+}
+<YYINITIAL> {COLON} { 
+  return "CL\t"+ yytext();
+}
+
+<YYINITIAL> {MATCHER} { 
+  return "WC\t"+ yytext();
+}
+<YYINITIAL> {GRATERTHAN} { 
+  return "GT\t"+ yytext();
+}
+<YYINITIAL> {LESSTHAN} { 
+  return "LT\t"+ yytext();
+}
+
+
+
+<YYINITIAL> {ARROW} { 
+  return "AR\t"+ yytext();
+}
+<YYINITIAL> {EMPTYLIST} { 
+  return "EL\t"+ yytext();
+}
+<YYINITIAL> {ISEQUAL} { 
+  return "EQ\t"+ yytext();
+}
+<YYINITIAL> {GREATEREQUAL} { 
+  return "GE\t"+ yytext();
+}
+<YYINITIAL> {LESSEQUAL} { 
+  return "LE\t"+ yytext();
+}
+
+<YYINITIAL> {CONCATENATE} { 
+  return "CN\t"+ yytext();
+}
+<YYINITIAL> {LEFTBRACKET} { 
+  return "LB\t"+ yytext();
+}
+<YYINITIAL> {RIGHTBRACKET} { 
+  return "RB\t"+ yytext();
+}
+<YYINITIAL> {LEFTSQUAREBRACKET} { 
+  return "LS\t"+ yytext();
+}
+<YYINITIAL> {RIGHTSQUAREBRACKET} { 
+  return "RS\t"+ yytext();
+}
+<YYINITIAL> {LEFTCOLON} { 
+  return "LC\t"+ yytext();
+}
+<YYINITIAL> {RIGHTCOLON} { 
+  return "RC\t"+ yytext();
+}
+
+
+<YYINITIAL> {WHITE_SPACE} { 
+}
+<YYINITIAL> "=" { 
+  return "AO\t="; 
+}
+<YYINITIAL> . { 
+  return "Undefined\t"+yytext(); 
+}
