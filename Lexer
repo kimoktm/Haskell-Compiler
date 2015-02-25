@@ -36,7 +36,8 @@ public class Lexer
   private int comment_count = 0;
 %}
 %state COMMENT
-%state NTS
+%state BLOCKBEGIN
+%state BLOCKEND
 
 
 KEYWORD=data|type|deriving|if|then|else|otherwise|where|True|False
@@ -85,6 +86,22 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
 <COMMENT> [^\n] {
 }
 <COMMENT> [\n] {
+  yybegin(YYINITIAL);
+}
+
+
+<YYINITIAL> "{-" {
+  yybegin(BLOCKBEGIN);
+}
+<BLOCKBEGIN> [^\-] {
+}
+<BLOCKBEGIN> "-" {
+  yybegin(BLOCKEND);
+}
+<BLOCKEND> [^\}] {
+  yybegin(BLOCKBEGIN);
+}
+<BLOCKEND> "}" {
   yybegin(YYINITIAL);
 }
 
