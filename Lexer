@@ -2,6 +2,8 @@ import java.util.*;
 import java.io.*;
 
 /* semantic value of token returned by scanner */
+/* Karim Tarek      22-466  */
+/* Ahmed Jihad      22-3855 */
 
 public class Lexer
 {
@@ -57,6 +59,12 @@ COMMA=","
 BREAK="|"
 MATCHER="_"
 COLON=":"
+SEMICOLON=";"
+
+ADDITION="+"
+SUBTRACTION="-"
+MULTIPLY="*"
+DIVIDE="/"
 
 LEFTBRACKET="("
 RIGHTBRACKET=")"
@@ -105,19 +113,6 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
   yybegin(YYINITIAL);
 }
 
-
-
-<YYINITIAL> {IDENTIFIER} { 
-  return "ID\t"+ yytext();
-}
-<YYINITIAL> {CHARACTER} { 
-  return "CH\t"+ yytext();
-}
-<YYINITIAL> {STRING} { 
-  return "ST\t"+ yytext();
-}
-
-
 <YYINITIAL> {KEYWORD} { 
   return "KW\t"+ yytext();
 }
@@ -126,6 +121,9 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
 }
 <YYINITIAL> {FUNCTOR} { 
   return "FR\t"+ yytext();
+}
+<YYINITIAL> {NUMBER} { 
+  return "NM\t"+ yytext();
 }
 
 <YYINITIAL> {COMMA} { 
@@ -140,6 +138,32 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
 <YYINITIAL> {COLON} { 
   return "CL\t"+ yytext();
 }
+<YYINITIAL> {SEMICOLON} { 
+  return "SM\t"+ yytext();
+}
+
+<YYINITIAL> {ADDITION} { 
+  return "PO\t"+ yytext();
+}
+<YYINITIAL> {SUBTRACTION} { 
+  return "MO\t"+ yytext();
+}
+<YYINITIAL> {MULTIPLY} { 
+  return "MB\t"+ yytext();
+}
+<YYINITIAL> {DIVIDE} { 
+  return "DV\t"+ yytext();
+}
+
+<YYINITIAL> "=>" { 
+  return "DA\t"+ yytext();
+}
+<YYINITIAL> ".." { 
+  return "DD\t"+ yytext();
+}
+<YYINITIAL> "!!" { 
+  return "FN\t"+ yytext();
+}
 
 <YYINITIAL> {MATCHER} { 
   return "WC\t"+ yytext();
@@ -150,8 +174,6 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
 <YYINITIAL> {LESSTHAN} { 
   return "LT\t"+ yytext();
 }
-
-
 
 <YYINITIAL> {ARROW} { 
   return "AR\t"+ yytext();
@@ -191,6 +213,15 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
   return "RC\t"+ yytext();
 }
 
+<YYINITIAL> {IDENTIFIER} { 
+  return "ID\t"+ yytext();
+}
+<YYINITIAL> {CHARACTER} { 
+  return "CH\t"+ yytext();
+}
+<YYINITIAL> {STRING} { 
+  return "ST\t"+ yytext();
+}
 
 <YYINITIAL> {WHITE_SPACE} { 
 }
