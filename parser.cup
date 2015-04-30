@@ -7,28 +7,29 @@ terminal				ID, KW, DT, FR, NM, FA, BR, HT, CL, SM, PO, MO, MB, DV, DA, DD, FN, 
 
 /* Non-terminals */
 nonterminal	String		program, statement, expr, ifcond, conditional, conds, cond, condH, oper, oprnd, term, params, func,
-						lstinit, lst, lfunc, pars;
-
-precedence left ES, TN, MO, PO, MB, DV;
+						lstinit, lst, lfunc, pars, sts, prf;
 
 
-program ::= program statement | {:AP.h();:};
+prf ::= program | program statement;
 
+program ::= program sts | {:AP.h();:};
 
-statement ::= ID term AO expr NL
-			| ID term BR conds BR OW AO term NL
-			| ID EL AO lstinit NL
-			| ID LB ID CL ID RB AO lst NL
-			| NL
+sts ::= statement NL | NL;
+
+statement ::= ID term AO expr
+			| ID term BR conds BR OW AO term
+			| ID term BR conds NL BR OW AO term
+			| ID EL AO lstinit
+			| ID LB ID CL ID RB AO lst
 			| error {:System.out.println("wrong statement");:};
 
 expr ::= ifcond | oper;
 
-conds ::= conditional | conds BR conditional;
+conds ::= conditional | conds BR conditional | conds NL BR conditional;
 
 conditional ::= cond AO oper;
 
-ifcond ::= IF cond TN expr ES expr;
+ifcond ::= IF cond TN expr ES expr | IF cond TN expr ES NL expr;
 
 cond ::= cond OO condH | cond AA condH | condH;
 
@@ -38,7 +39,8 @@ condH ::= oper EQ oper
 		| oper LE oper
 		| oper GE oper;
 
-oper ::=  oprnd MO oper | oprnd PO oper | oprnd MB oper | oprnd DV oper | oprnd;
+oper ::=  oprnd MO oper | oprnd PO oper | oprnd MB oper | oprnd DV oper | oprnd
+		| LB oprnd MO oper RB | LB oprnd PO oper RB | LB oprnd MB oper RB | LB oprnd DV oper RB | LB oprnd RB;
 
 oprnd ::= term | func | lfunc;
 
