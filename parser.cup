@@ -1,0 +1,98 @@
+import java_cup.runtime.*;
+
+/* Terminals */
+terminal				ID, KW, DT, FR, NM, FA, BR, HT, CL, SM, PO, MO, MB, DV, DA, DD, FN, WC, GT, LT,
+						AR, EL, EQ, GE, LE, CN, LB, RB, LS, RS, LC, RC, CH, ST, AO, AA, OO, IF, ES, TN, OW,
+						TR, FS;
+
+/* Non-terminals */
+nonterminal	String		program, statement, expr, ifcond, conditional, conds, cond, condH, oper, oprnd, term, params, func;
+
+
+program ::= program statement |  {:AP.h();:};
+
+statement ::= ID term AO expr | ID term BR conds BR OW AO term
+			| error {:System.out.println("wrong statement");:};
+
+expr ::= ifcond | oper;
+
+conds ::= conditional | conds BR conditional;
+
+conditional ::= cond AO oper;
+
+ifcond ::= IF cond TN expr ES expr;
+
+cond ::= cond OO condH | cond AA condH | condH;
+
+condH ::= oper EQ oper
+		| oper LT oper
+		| oper GT oper
+		| oper LE oper
+		| oper GE oper;
+
+oper ::=  oprnd MO oper | oprnd PO oper | oprnd MB oper | oprnd DV oper | oprnd;
+
+oprnd ::= term | func;
+
+term ::= ID | NM | MO ID | MO NM | TR | FS;
+
+func ::= ID LB params RB;
+
+params ::= oper | oper FA params;
+
+/*
+program ::= program:p conditional:c {:RESULT = p + c;:}| program:p statement:s {:RESULT = p + s;:}
+			|  {:RESULT = "";:};
+
+conditional ::= ID:i AO LP cond:c RP QM ID:i1 CL ID:i2 SM {:RESULT ="if "+c+", then set "+i+" to "+i1+", else set "+i+" to "+i2+".\n";:};
+
+cond ::= cond:c1 OO condH:c2 {:RESULT =c1 +" or "+ c2;:} | cond:c1 AA condH:c2 {:RESULT =c1 +" and "+ c2;:} | condH:c {:RESULT =c;:};
+
+condH ::= ID:i1 EQ ID:i2 {:RESULT =i1 +" is equal to "+ i2;:} | ID:i1 LT ID:i2 {:RESULT =i1 +" is less than "+ i2;:} | ID:i1 MT ID:i2 {:RESULT =i1 +" is more than "+ i2;:};
+
+statement ::= ID:i AO oper:o SM {:RESULT = i+" equals "+o+".\n";:}
+			| error {:RESULT = "wrong line\n";System.out.println("wrong statement");:};
+
+oper ::= NM:n2 {:RESULT=""+new Integer((String)n2);:}| NM:n3 ML oper:o {:AP.h();RESULT=n3+" times "+o;:} | NM:n4 PL oper:o1 {:AP.h();RESULT=n4+" Plus "+o1;:};				
+
+
+program ::= program dpcl |  {:AP.h();:};
+
+dpcl ::= expr | SID mult;
+
+mult ::= brset mult | brset;
+brset ::= BR cond AO val | BR OTHERWISE AO val;
+expr ::= SID SID AO val;
+
+val ::= func | recr | conditional;
+
+func ::= term
+		| MO term
+		| term PO func
+		| term MO func
+		| term MB func
+		| term DV func;
+
+recr ::= SID LB SID SID RB;
+
+conditional ::= IF cond THEN val ELSE val;
+
+cond ::= cond OO condH | cond AA condH | condH;
+
+condH ::= term EQ term | term LT term | term GT term | term GE term | term LE term;
+
+term ::= SID | NM;
+
+
+program ::= program conditional | program statement |  {:AP.h();:};
+
+statement ::= ID AO oper NL | error {:System.out.println("wrong statement");:};
+
+conditional ::= ID AO LP cond RP QM ID CL ID NL;
+
+cond ::= cond OO condH | cond AA condH | condH;
+
+condH ::= ID EQ ID | ID LT ID | ID MT ID;
+
+oper ::= NM | NM ML oper | NM PL oper;
+*/

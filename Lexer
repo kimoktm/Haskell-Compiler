@@ -1,233 +1,243 @@
-import java.util.*;
-import java.io.*;
-
-/* semantic value of token returned by scanner */
-/* Karim Tarek      22-466  */
-/* Ahmed Jihad      22-3855 */
-
-public class Lexer
-{
-	public static void main (String[] args) throws IOException
-	{
-		BufferedReader reader = new BufferedReader(new FileReader("input1.hs"));
-		BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
-		Yylex yy = new Yylex (reader);
-		while(true)
-		{
-			String x =yy.next_token();
-			if(x==null)
-				break;
-			writer.write(x);	
-			writer.write('\n');
-		}
-		reader.close();
-		writer.close();
-	}
-}
-
+import java_cup.runtime.Symbol;
 %%
+%class Lexer
+
+%implements java_cup.runtime.Scanner
 %function next_token
-%type String
+%type java_cup.runtime.Symbol
 
 %eofval{
-  return null;
+	return new Symbol(sym.EOF, null);
 %eofval}
 
-%{
-  public String sourceFilename;
-  private int comment_count = 0;
-%}
 %state COMMENT
 %state BLOCKBEGIN
 %state BLOCKEND
 
-
 KEYWORD=data|type|deriving|if|then|else|otherwise|where|True|False
 DATATYPE=String|Bool|Integer|Int|Char
 FUNCTOR=Eq|Ord|Enum|Ix|Bounded|Read|Show
-
 ALPHA=[A-Za-z]
+SMALL=[a-z]
+LARGE=[A-Z]
 DIGIT=[0-9]
 ALPHA_NUMERIC={ALPHA}|{DIGIT}
 IDENTIFIER={ALPHA}({ALPHA_NUMERIC})*
-NUMBER=(([-])?{DIGIT})
+
+NUMBER=({DIGIT})
 CHARACTER=[\'][^\',\n][\']
 STRING=[\"][^\",\n]+[\"]
 COMMENT_TEXT=[^(?!-}$).*]
-
-COMMA=","
-BREAK="|"
-MATCHER="_"
-COLON=":"
-SEMICOLON=";"
-
-ADDITION="+"
-SUBTRACTION="-"
-MULTIPLY="*"
-DIVIDE="/"
-
-LEFTBRACKET="("
-RIGHTBRACKET=")"
-LEFTSQUAREBRACKET="["
-RIGHTSQUAREBRACKET="]"
-LEFTCOLON="{"
-RIGHTCOLON="}"
-
-DOUBLECOLON="::"
-ARROW="->"
-EMPTYLIST="[]"
-GRATERTHAN=">"
-LESSTHAN="<"
-
-ISEQUAL="=="
-GREATEREQUAL=">="
-LESSEQUAL="<="
-CONCATENATE="++"
-
 WHITE_SPACE=([\ \n\r\t\f\b])+
 %%
-
 
 <YYINITIAL> "--" {
   yybegin(COMMENT);
 }
+
 <COMMENT> [^\n] {
 }
+
 <COMMENT> [\n] {
   yybegin(YYINITIAL);
 }
 
-
 <YYINITIAL> "{-" {
   yybegin(BLOCKBEGIN);
 }
+
 <BLOCKBEGIN> [^\-] {
 }
+
 <BLOCKBEGIN> "-" {
   yybegin(BLOCKEND);
 }
+
 <BLOCKEND> [^\}] {
   yybegin(BLOCKBEGIN);
 }
+
 <BLOCKEND> "}" {
   yybegin(YYINITIAL);
 }
 
+<YYINITIAL> "if" {
+	return new Symbol(sym.IF, yytext());
+}
+
+<YYINITIAL> "then" {
+	return new Symbol(sym.TN, yytext());
+}
+
+<YYINITIAL> "else" {
+	return new Symbol(sym.ES, yytext());
+}
+
+<YYINITIAL> "otherwise" {
+	return new Symbol(sym.OW, yytext());
+}
+
+<YYINITIAL> "True" {
+	return new Symbol(sym.TR, yytext());
+}
+
+<YYINITIAL> "False" {
+	return new Symbol(sym.FS, yytext());
+}
+
 <YYINITIAL> {KEYWORD} { 
-  return "KW\t"+ yytext();
+	return new Symbol(sym.KW, yytext());
 }
+
 <YYINITIAL> {DATATYPE} { 
-  return "DT\t"+ yytext();
+	return new Symbol(sym.DT, yytext());
 }
+
 <YYINITIAL> {FUNCTOR} { 
-  return "FR\t"+ yytext();
+	return new Symbol(sym.FR, yytext());
 }
+
 <YYINITIAL> {NUMBER} { 
-  return "NM\t"+ yytext();
+	return new Symbol(sym.NM, ""+Integer.parseInt(yytext()));
 }
 
-<YYINITIAL> {COMMA} { 
-  return "FA\t"+ yytext();
-}
-<YYINITIAL> {BREAK} { 
-  return "BR\t"+ yytext();
-}
-<YYINITIAL> {DOUBLECOLON} { 
-  return "HT\t"+ yytext();
-}
-<YYINITIAL> {COLON} { 
-  return "CL\t"+ yytext();
-}
-<YYINITIAL> {SEMICOLON} { 
-  return "SM\t"+ yytext();
+
+<YYINITIAL> {IDENTIFIER} { 
+	return new Symbol(sym.ID, yytext());
 }
 
-<YYINITIAL> {ADDITION} { 
-  return "PO\t"+ yytext();
+<YYINITIAL> {CHARACTER} { 
+	return new Symbol(sym.CH, yytext());
 }
-<YYINITIAL> {SUBTRACTION} { 
-  return "MO\t"+ yytext();
+
+<YYINITIAL> {STRING} { 
+	return new Symbol(sym.ST, yytext());
 }
-<YYINITIAL> {MULTIPLY} { 
-  return "MB\t"+ yytext();
+
+<YYINITIAL> "," { 
+	return new Symbol(sym.FA, yytext());
 }
-<YYINITIAL> {DIVIDE} { 
-  return "DV\t"+ yytext();
+
+<YYINITIAL> "|" { 
+	return new Symbol(sym.BR, yytext());
+}
+
+<YYINITIAL> "::" { 
+	return new Symbol(sym.HT, yytext());
+}
+
+<YYINITIAL> ":" { 
+	return new Symbol(sym.CL, yytext());
+}
+
+<YYINITIAL> ";" { 
+	return new Symbol(sym.SM, yytext());
+}
+
+<YYINITIAL> "+" { 
+	return new Symbol(sym.PO, yytext());
+}
+
+<YYINITIAL> "-" { 
+	return new Symbol(sym.MO, yytext());
+}
+
+<YYINITIAL> "*" { 
+	return new Symbol(sym.MB, yytext());
+}
+
+<YYINITIAL> "/" { 
+	return new Symbol(sym.DV, yytext());
 }
 
 <YYINITIAL> "=>" { 
-  return "DA\t"+ yytext();
+	return new Symbol(sym.DA, yytext());
 }
+
 <YYINITIAL> ".." { 
-  return "DD\t"+ yytext();
+	return new Symbol(sym.DD, yytext());
 }
+
 <YYINITIAL> "!!" { 
-  return "FN\t"+ yytext();
+	return new Symbol(sym.FN, yytext());
 }
 
-<YYINITIAL> {MATCHER} { 
-  return "WC\t"+ yytext();
-}
-<YYINITIAL> {GRATERTHAN} { 
-  return "GT\t"+ yytext();
-}
-<YYINITIAL> {LESSTHAN} { 
-  return "LT\t"+ yytext();
+<YYINITIAL> "_" { 
+	return new Symbol(sym.WC, yytext());
 }
 
-<YYINITIAL> {ARROW} { 
-  return "AR\t"+ yytext();
-}
-<YYINITIAL> {EMPTYLIST} { 
-  return "EL\t"+ yytext();
-}
-<YYINITIAL> {ISEQUAL} { 
-  return "EQ\t"+ yytext();
-}
-<YYINITIAL> {GREATEREQUAL} { 
-  return "GE\t"+ yytext();
-}
-<YYINITIAL> {LESSEQUAL} { 
-  return "LE\t"+ yytext();
+<YYINITIAL> ">" { 
+	return new Symbol(sym.GT, yytext());
 }
 
-<YYINITIAL> {CONCATENATE} { 
-  return "CN\t"+ yytext();
-}
-<YYINITIAL> {LEFTBRACKET} { 
-  return "LB\t"+ yytext();
-}
-<YYINITIAL> {RIGHTBRACKET} { 
-  return "RB\t"+ yytext();
-}
-<YYINITIAL> {LEFTSQUAREBRACKET} { 
-  return "LS\t"+ yytext();
-}
-<YYINITIAL> {RIGHTSQUAREBRACKET} { 
-  return "RS\t"+ yytext();
-}
-<YYINITIAL> {LEFTCOLON} { 
-  return "LC\t"+ yytext();
-}
-<YYINITIAL> {RIGHTCOLON} { 
-  return "RC\t"+ yytext();
+<YYINITIAL> "<" { 
+	return new Symbol(sym.LT, yytext());
 }
 
-<YYINITIAL> {IDENTIFIER} { 
-  return "ID\t"+ yytext();
+<YYINITIAL> "->" { 
+	return new Symbol(sym.AR, yytext());
 }
-<YYINITIAL> {CHARACTER} { 
-  return "CH\t"+ yytext();
+
+<YYINITIAL> "[]" { 
+	return new Symbol(sym.EL, yytext());
 }
-<YYINITIAL> {STRING} { 
-  return "ST\t"+ yytext();
+
+<YYINITIAL> "==" { 
+	return new Symbol(sym.EQ, yytext());
+}
+
+<YYINITIAL> ">=" { 
+	return new Symbol(sym.GE, yytext());
+}
+
+<YYINITIAL> "<=" { 
+	return new Symbol(sym.LE, yytext());
+}
+
+<YYINITIAL> "||" { 
+	return new Symbol(sym.OO, yytext());
+}
+
+<YYINITIAL> "&&" { 
+	return new Symbol(sym.AA, yytext());
+}
+
+
+<YYINITIAL> "++" { 
+	return new Symbol(sym.CN, yytext());
+}
+
+<YYINITIAL> "(" { 
+	return new Symbol(sym.LB, yytext());
+}
+
+<YYINITIAL> ")" { 
+	return new Symbol(sym.RB, yytext());
+}
+
+<YYINITIAL> "[" { 
+	return new Symbol(sym.LS, yytext());
+}
+
+<YYINITIAL> "]" { 
+	return new Symbol(sym.RS, yytext());
+}
+
+<YYINITIAL> "{" { 
+	return new Symbol(sym.LC, yytext());
+}
+
+<YYINITIAL> "}" { 
+	return new Symbol(sym.RC, yytext());
+}
+
+<YYINITIAL> "=" { 
+	return new Symbol(sym.AO, yytext());
 }
 
 <YYINITIAL> {WHITE_SPACE} { 
 }
-<YYINITIAL> "=" { 
-  return "AO\t="; 
-}
+
 <YYINITIAL> . { 
-  return "Undefined\t"+yytext(); 
+	return new Symbol(sym.error, "Error!");
 }
