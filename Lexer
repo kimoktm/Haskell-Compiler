@@ -206,7 +206,6 @@ WHITE_SPACE=([\ \r\t\f\b])+
 	return new Symbol(sym.AA, yytext());
 }
 
-
 <YYINITIAL> "++" { 
 	return new Symbol(sym.CN, yytext());
 }

@@ -11,14 +11,14 @@ signum x = if x < 0 then - 1 else
 	
 abs1 x | x >= 0 = x
 	   | otherwise = -x
-
+	  
 signum1 x | x < 0 = -1
 		  | x == 0 = 0
 		  | otherwise = 1
-
+		 
 fact n = if n==0 then 1 else
 			fact (n-1) * n
-
+			
 fact1 0 = 1
 fact1 n = fact (n-1) * n
 
