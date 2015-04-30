@@ -23,3 +23,6 @@ fact n = if n==0 then 1 else
 
 fact1 0 = 1
 fact1 n = fact (n-1) * n
+
+sumAll [] = 0
+sumAll (x:xs) = x + sumAll xs

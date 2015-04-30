@@ -85,6 +85,10 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
 	return new Symbol(sym.FS, yytext());
 }
 
+<YYINITIAL> "error" {
+	return new Symbol(sym.ER, yytext());
+}
+
 <YYINITIAL> {KEYWORD} { 
 	return new Symbol(sym.KW, yytext());
 }
@@ -100,7 +104,6 @@ WHITE_SPACE=([\ \n\r\t\f\b])+
 <YYINITIAL> {NUMBER} { 
 	return new Symbol(sym.NM, ""+Integer.parseInt(yytext()));
 }
-
 
 <YYINITIAL> {IDENTIFIER} { 
 	return new Symbol(sym.ID, yytext());

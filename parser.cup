@@ -3,15 +3,23 @@ import java_cup.runtime.*;
 /* Terminals */
 terminal				ID, KW, DT, FR, NM, FA, BR, HT, CL, SM, PO, MO, MB, DV, DA, DD, FN, WC, GT, LT,
 						AR, EL, EQ, GE, LE, CN, LB, RB, LS, RS, LC, RC, CH, ST, AO, AA, OO, IF, ES, TN, OW,
-						TR, FS;
+						TR, FS, ER, NL;
 
 /* Non-terminals */
-nonterminal	String		program, statement, expr, ifcond, conditional, conds, cond, condH, oper, oprnd, term, params, func;
+nonterminal	String		program, statement, expr, ifcond, conditional, conds, cond, condH, oper, oprnd, term, params, func,
+						lstinit, lst, lfunc, pars;
+
+precedence left ES, TN, MO, PO, MB, DV;
 
 
-program ::= program statement |  {:AP.h();:};
+program ::= program statement | {:AP.h();:};
 
-statement ::= ID term AO expr | ID term BR conds BR OW AO term
+
+statement ::= ID term AO expr NL
+			| ID term BR conds BR OW AO term NL
+			| ID EL AO lstinit NL
+			| ID LB ID CL ID RB AO lst NL
+			| NL
 			| error {:System.out.println("wrong statement");:};
 
 expr ::= ifcond | oper;
@@ -32,13 +40,21 @@ condH ::= oper EQ oper
 
 oper ::=  oprnd MO oper | oprnd PO oper | oprnd MB oper | oprnd DV oper | oprnd;
 
-oprnd ::= term | func;
+oprnd ::= term | func | lfunc;
 
 term ::= ID | NM | MO ID | MO NM | TR | FS;
 
 func ::= ID LB params RB;
 
 params ::= oper | oper FA params;
+
+lfunc ::= ID pars;
+
+pars ::= term | pars term;
+
+lstinit ::= NM | EL | ER ST;
+
+lst ::= oper | oper CL oper | oper CN oper;
 
 /*
 program ::= program:p conditional:c {:RESULT = p + c;:}| program:p statement:s {:RESULT = p + s;:}
